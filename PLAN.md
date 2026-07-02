@@ -42,6 +42,7 @@ do-subtitle-webapp/
 ├── PLAN.md                 แผนการทำงาน (ไฟล์นี้)
 ├── DEPLOY.md               คู่มือการ Deploy (GitHub Pages, Vercel, Netlify, Cloudflare)
 ├── .gitignore              ไฟล์ระบุรายการที่ไม่ต้องการเก็บใน Git
+├── vercel.json             ไฟล์ตั้งค่าความปลอดภัยสำหรับ Vercel
 ├── index.html              หน้าหลักเว็บแอป
 ├── styles.css              CSS ตกแต่ง (Dark Mode Premium)
 ├── app.js                  Logic หลักและจัดการ pipeline
