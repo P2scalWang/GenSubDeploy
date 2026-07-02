@@ -41,6 +41,7 @@
 do-subtitle-webapp/
 ├── PLAN.md                 แผนการทำงาน (ไฟล์นี้)
 ├── DEPLOY.md               คู่มือการ Deploy (GitHub Pages, Vercel, Netlify, Cloudflare)
+├── BACKEND_HOWTO.md        คู่มือการย้ายระบบประมวลผลไปทำหลังบ้าน (Backend How-To)
 ├── .gitignore              ไฟล์ระบุรายการที่ไม่ต้องการเก็บใน Git
 ├── vercel.json             ไฟล์ตั้งค่าความปลอดภัยสำหรับ Vercel
 ├── coi-serviceworker.js    สคริปต์ช่วยเปิดการใช้งาน COOP/COEP บน GitHub Pages
