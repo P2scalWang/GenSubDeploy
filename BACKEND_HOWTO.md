@@ -199,3 +199,86 @@ const checkInterval = setInterval(async () => {
 | **ค่าใช้จ่ายโฮสติ้ง** | **ฟรี** (เนื่องจากใช้ทรัพยากรในคอมพิวเตอร์ของผู้ใช้) | **มีค่าใช้จ่าย** ค่าเซิร์ฟเวอร์, ค่า Redis และค่าพื้นที่เก็บข้อมูล (Cloud Storage) |
 | **ความปลอดภัยของ API Key** | ผู้ใช้ต้องกรอกและเก็บคีย์ไว้ในเบราว์เซอร์ของตัวเอง | ปลอดภัยกว่า เพราะเก็บ API Key ไว้หลังบ้าน |
 
+---
+
+## 6. แนะนำผู้ให้บริการโฮสติ้งและวิธีการ Deploy หลังบ้าน (Hosting Providers & Deployment Options)
+
+ระบบหลังบ้านที่ทำหน้าที่เรนเดอร์วิดีโอ (Video Processing) **ไม่สามารถใช้โฮสติ้งประเภท Serverless (เช่น Vercel หรือ Cloudflare Workers) ได้** เนื่องจาก:
+1. **มีขีดจำกัดเรื่องเวลา (Timeout Limit)**: Serverless มักจำกัดเวลาประมวลผลไม่เกิน 10-60 วินาที แต่งานแปลงวิดีโอและทำซับมักใช้เวลา 1-5 นาที
+2. **ไม่รองรับการประมวลผลวิดีโอแบบ Native**: การเรียกใช้โปรแกรม FFmpeg ตัวเต็มในระบบเซิร์ฟเวอร์เลสทำได้ยากมากและมีพื้นที่เก็บไฟล์จำกัด
+
+ด้านล่างนี้คือผู้ให้บริการและวิธีการติดตั้งหลังบ้านที่แนะนำครับ:
+
+### ทางเลือกที่ 1: ใช้ PaaS (เช่น Railway.app หรือ Render.com) — [ง่ายที่สุด]
+เป็นตัวเลือกที่สะดวกที่สุดสำหรับผู้เริ่มต้น ไม่ต้องพิมพ์คำสั่ง Linux เพื่อตั้งค่าเซิร์ฟเวอร์เอง
+
+* **วิธีใช้**:
+  1. สร้างไฟล์ `Dockerfile` ในโปรเจกต์หลังบ้านของคุณเพื่อสั่งติดตั้ง FFmpeg และ Node.js (ตัวอย่าง):
+     ```dockerfile
+     FROM node:20
+     # ติดตั้ง FFmpeg ใน Container
+     RUN apt-get update && apt-get install -y ffmpeg
+     WORKDIR /app
+     COPY package*.json ./
+     RUN npm install
+     COPY . .
+     EXPOSE 3000
+     CMD ["npm", "start"]
+     ```
+  2. เชื่อมต่อ Git Repository หลังบ้านของคุณเข้ากับ **Railway** หรือ **Render**
+  3. เปิดบริการ **Redis Database Add-on** ในหน้าแดชบอร์ดของ Railway/Render แล้วนำ URL การเชื่อมต่อมาใส่ในโค้ด
+  4. กดปุ่ม Deploy ระบบจะสร้าง Container และรัน API Server พร้อมตัวรันคิว (Worker) ให้ทันที
+
+---
+
+### ทางเลือกที่ 2: ใช้ VPS (เช่น DigitalOcean, Vultr, Hetzner, AWS EC2) — [คุ้มค่าที่สุด]
+เหมาะสำหรับระบบที่ต้องการความแรงของ CPU/RAM ในการแปลงวิดีโอ โดยเสียค่าใช้จ่ายคงที่ประมาณ $4 - $6 ต่อเดือน (ประมาณ 150-200 บาท)
+
+#### ขั้นตอนการติดตั้งบน Ubuntu VPS (แบบย่อ):
+1. **เชื่อมต่อเข้าเซิร์ฟเวอร์ผ่าน SSH**:
+   ```bash
+   ssh root@your_server_ip
+   ```
+
+2. **ติดตั้งเครื่องมือที่จำเป็น (Node.js, FFmpeg, Redis)**:
+   ```bash
+   # อัปเดตแพ็คเกจ
+   sudo apt update && sudo apt upgrade -y
+   
+   # ติดตั้ง FFmpeg และ Redis
+   sudo apt install ffmpeg redis-server -y
+   
+   # ติดตั้ง Node.js (เวอร์ชัน LTSล่าสุด)
+   curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+   sudo apt install -y nodejs
+   ```
+
+3. **เปิดระบบคิวงาน (Redis)**:
+   ```bash
+   sudo systemctl start redis-server
+   sudo systemctl enable redis-server
+   ```
+
+4. **ติดตั้ง PM2 สำหรับเปิดรันแอปเบื้องหลัง (Background Process)**:
+   ```bash
+   sudo npm install pm2 -g
+   ```
+
+5. **รันระบบหลังบ้าน**:
+   ดาวน์โหลดโค้ดหลังบ้านมาลงในเซิร์ฟเวอร์ จากนั้นสั่งรันด้วย PM2:
+   ```bash
+   # รันตัวรับงาน (API Server)
+   pm2 start server.js --name "do-subtitle-api"
+   
+   # รันตัวทำงานแปลงวิดีโอเบื้องหลัง (Worker)
+   pm2 start worker.js --name "do-subtitle-worker"
+   
+   # ตั้งค่าให้รันอัตโนมัติหากเซิร์ฟเวอร์รีสตาร์ท
+   pm2 startup
+   pm2 save
+   ```
+
+6. **ตั้งค่า Domain / Reverse Proxy**:
+   ติดตั้ง Nginx เพื่อให้คนนอกสามารถยิง API มาหาพอร์ต 3000 ของ Express ในเซิร์ฟเวอร์ได้แบบปลอดภัย (HTTPS) ผ่าน SSL ฟรีของ Let's Encrypt
+
+
