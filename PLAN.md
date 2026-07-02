@@ -43,7 +43,11 @@ do-subtitle-webapp/
 ├── DEPLOY.md               คู่มือการ Deploy (GitHub Pages, Vercel, Netlify, Cloudflare)
 ├── .gitignore              ไฟล์ระบุรายการที่ไม่ต้องการเก็บใน Git
 ├── vercel.json             ไฟล์ตั้งค่าความปลอดภัยสำหรับ Vercel
+├── coi-serviceworker.js    สคริปต์ช่วยเปิดการใช้งาน COOP/COEP บน GitHub Pages
 ├── index.html              หน้าหลักเว็บแอป
+├── .github/
+│   └── workflows/
+│       └── deploy.yml      ไฟล์ตั้งค่า GitHub Actions สำหรับ Auto-Deploy ไปยัง GitHub Pages
 ├── styles.css              CSS ตกแต่ง (Dark Mode Premium)
 ├── app.js                  Logic หลักและจัดการ pipeline
 ├── gemini.js               ตัวเรียก OpenRouter API (Script, TTS, SRT Sync)

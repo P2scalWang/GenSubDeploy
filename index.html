@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Do-Subtitle Webapp — ตัดต่อวิดีโอและซับไตเติลด้วย AI</title>
   
+  <!-- โหลด Service Worker เพื่อ Bypass Cross-Origin Isolation Headers บน GitHub Pages -->
+  <script src="./coi-serviceworker.js"></script>
+  
   <!-- โหลด ffmpeg.wasm UMD จาก vendor/ ท้องถิ่น -->
   <script src="./vendor/ffmpeg.js"></script>
   <script src="./vendor/util.js"></script>
