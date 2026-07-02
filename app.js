@@ -33,9 +33,9 @@ let db = null;
 
 // ---------- BGM List ----------
 const BGM_FILES = ["./music/bgm1.mp3", "./music/bgm2.mp3", "./music/bgm3.mp3"];
-let bgmIndex = 0;
 function pickBgmFile() {
-  return BGM_FILES[(bgmIndex++) % BGM_FILES.length];
+  const idx = Math.floor(Math.random() * BGM_FILES.length);
+  return BGM_FILES[idx];
 }
 
 // ---------- Initialize IndexedDB ----------
@@ -405,7 +405,8 @@ $("runBtn").onclick = async () => {
 
   const voice = getSelectedVoice();
   const doSubs = $("optSubs").checked;
-  const doMusic = $("optMusic").checked;
+  const bgmVal = $("bgmSelect").value;
+  const doMusic = bgmVal !== "none";
   const styleHint = $("styleHint").value.trim();
   const { duration, width: vw, height: vh } = videoMeta;
 
@@ -500,21 +501,28 @@ $("runBtn").onclick = async () => {
     // 5b. ใส่เพลงประกอบด้านหลัง (BGM)
     if (doMusic) {
       try {
-        const bgmPath = pickBgmFile();
+        let bgmPath;
+        if (bgmVal === "random") {
+          bgmPath = pickBgmFile();
+        } else {
+          bgmPath = `./music/${bgmVal}.mp3`;
+        }
         logLine(`[music] เลือกเพลงประกอบ: ${bgmPath}`);
         await writeFile("bgm.mp3", await fetchFile(bgmPath));
         const fadeStart = Math.max(0, finalClipDuration - 1.2);
         
-        // ผสมเสียงพากย์ (ความดังหลัก) + เพลงพื้นหลัง (เบาลง 14% และหรี่เสียงตอนจบ)
+        const bgmVolume = parseFloat($("bgmVolumeSelect").value || "0.14");
+        
+        // ผสมเสียงพากย์ (ความดังหลัก) + เพลงพื้นหลัง (เบาลงตามระดับเสียงที่เลือก และหรี่เสียงตอนจบ)
         await exec([
           "-y", "-i", "audio_adjusted.wav", "-stream_loop", "-1", "-i", "bgm.mp3",
           "-filter_complex",
-          `[1:a]volume=0.14,afade=t=out:st=${fadeStart.toFixed(2)}:d=1.2[bg];` +
+          `[1:a]volume=${bgmVolume},afade=t=out:st=${fadeStart.toFixed(2)}:d=1.2[bg];` +
           `[0:a][bg]amix=inputs=2:duration=first:dropout_transition=0:normalize=0[a]`,
           "-map", "[a]", "-t", finalClipDuration.toFixed(3), "-ar", "44100", "-ac", "2", "audio_final.wav"
         ]);
         await exec(["-y", "-i", "audio_final.wav", "-c", "copy", "audio_adjusted.wav"]);
-        logLine(`[music] รวมเพลงพื้นหลังเรียบร้อย: ${bgmPath}`);
+        logLine(`[music] รวมเพลงพื้นหลังเรียบร้อย: ${bgmPath} (ระดับเสียง ${Math.round(bgmVolume * 100)}%)`);
       } catch (e) {
         logLine(`[music] ข้ามขั้นตอนผสมเพลงประกอบเนื่องจาก: ${e?.message || e}`);
       }

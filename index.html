@@ -124,6 +124,31 @@
           </div>
         </div>
 
+        <!-- Music/BGM Selection Row -->
+        <div class="field">
+          <div class="row">
+            <div>
+              <label for="bgmSelect">เพลงประกอบ (BGM)</label>
+              <select id="bgmSelect">
+                <option value="random" selected>🎲 สุ่มเพลงประกอบ (Random)</option>
+                <option value="bgm1">🎵 เพลงที่ 1 (bgm1.mp3)</option>
+                <option value="bgm2">🎵 เพลงที่ 2 (bgm2.mp3)</option>
+                <option value="bgm3">🎵 เพลงที่ 3 (bgm3.mp3)</option>
+                <option value="none">❌ ไม่ใส่เพลงประกอบ</option>
+              </select>
+            </div>
+            <div>
+              <label for="bgmVolumeSelect">ระดับเสียงเพลง BGM</label>
+              <select id="bgmVolumeSelect">
+                <option value="0.08">เบามาก (8%)</option>
+                <option value="0.14" selected>เบาปกติ (14% - แนะนำ)</option>
+                <option value="0.22">ดังปานกลาง (22%)</option>
+                <option value="0.30">ดังขึ้น (30%)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
         <!-- Toggles -->
         <div class="field">
           <label class="toggle">
@@ -139,14 +164,6 @@
             <span class="toggle-text">
               แสดงข้อความ Hook สีเหลืองค้างด้านบน
               <span class="toggle-desc">ช่วยตรึงสายตาคนดูสไตล์คลิปสั้น TikTok/Reels</span>
-            </span>
-          </label>
-          
-          <label class="toggle">
-            <input type="checkbox" id="optMusic" checked />
-            <span class="toggle-text">
-              ใส่เพลงประกอบด้านหลังเบาๆ
-              <span class="toggle-desc">สุ่มเพลงประกอบและ fade out ให้ในจังหวะจบ</span>
             </span>
           </label>
         </div>
